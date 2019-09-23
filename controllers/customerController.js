@@ -78,17 +78,20 @@ function addCustomers(req, res) {
   };
   newCustomer.dob = formatDate(newCustomer.dob);
   newCustomer.member_since = currentDateTime();
-
-  console.log(Object.values(newCustomer));
-  sqlConnection.query(
-    'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
-    Object.values(newCustomer),
-    (err, results) => {
-      if (err) throw err;
-      res.send(newCustomer);
-    }
-  );
-  sqlConnection.end();
+  if (Joi.validate(newCustomer, addCustomersValidator)) {
+    sqlConnection.query(
+      'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
+      Object.values(newCustomer),
+      (err, results) => {
+        if (err) throw err;
+        res.send(newCustomer);
+      }
+    );
+    sqlConnection.end();
+  } else {
+    res.status(400);
+    res.send('Query Not Executed');
+  }
 }
 
 module.exports = {
