@@ -1,6 +1,7 @@
 <table class="customersTable">
     <thead>
         <tr>
+            <th>ID</th>
             <th>First Name</th>
             <th>Last Name</th>
             <th>Gender</th>
@@ -14,6 +15,7 @@
 
         {{#each result}}
         <tr>
+            <td>{{this.id}}</td>
             <td>{{this.first_name}}</td>
             <td>{{this.last_name}}</td>
             <td>{{this.gender}}</td>

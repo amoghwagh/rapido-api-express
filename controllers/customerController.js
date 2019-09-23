@@ -94,7 +94,17 @@ function addCustomers(req, res) {
   }
 }
 
+function singleCustomerInformation(req, res) {
+  if (req.params.id) {
+    sqlConnection.query('SELECT * from customers where = ?', req.params.id, (err, results) => {
+      if (err) throw err;
+      res.send(results);
+    });
+  }
+}
+
 module.exports = {
   customersInformation,
-  addCustomers
+  addCustomers,
+  singleCustomerInformation
 };
