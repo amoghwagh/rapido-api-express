@@ -1,8 +1,22 @@
+.brand-logo img {
+  width: 1.5em;
+  height: auto;
+}
+
+nav {
+  height: 3.75em;
+}
+
 body {
-  padding: 50px;
   font: 14px 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00b7ff;
+}
+
+.customersTable {
+  width: 80%;
+  margin-left: 15em;
+  margin-top: 3em;
 }
