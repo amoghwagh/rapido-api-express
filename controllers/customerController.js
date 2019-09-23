@@ -95,12 +95,15 @@ function addCustomers(req, res) {
 }
 
 function singleCustomerInformation(req, res) {
-  if (req.params.id) {
-    sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, results) => {
-      if (err) throw err;
-      res.send(results);
-    });
-  }
+  sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, result) => {
+    if (err) throw err;
+    if (Object.keys(result).length > 0) {
+      res.render('customers', { result });
+    } else {
+      res.status(404);
+      res.send('ID Not Found');
+    }
+  });
 }
 
 module.exports = {
