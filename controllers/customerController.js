@@ -10,7 +10,7 @@ function formatDate(date) {
       new Date(date).getTimezoneOffset() * 60000
   )
     .toISOString()
-    .slice(0, 19)
+    .slice(0, 10)
     .replace('T', ' ');
   return formatedMysqlString;
 }
@@ -77,16 +77,17 @@ function addCustomers(req, res) {
     email: req.body.email
   };
   newCustomer.dob = formatDate(newCustomer.dob);
-  newCustomer.member_since = currentDateTime;
+  newCustomer.member_since = currentDateTime();
 
-  //   sqlConnection.query(
-  //     'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES ?',
-  //     newCustomer,
-  //     (err, results) => {
-  //       if (err) throw err;
-  //       console.log(results);
-  //     }
-  //   );
+  console.log(Object.values(newCustomer));
+  sqlConnection.query(
+    'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
+    Object.values(newCustomer),
+    (err, results) => {
+      if (err) throw err;
+      res.send(newCustomer);
+    }
+  );
   sqlConnection.end();
 }
 
