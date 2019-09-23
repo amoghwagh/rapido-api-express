@@ -15,7 +15,7 @@ function formatDate(date) {
   return formatedMysqlString;
 }
 
-function formatToDateTime(dateTime) {
+function currentDateTime() {
   const now = new Date();
   const year = now.getFullYear();
   let month = now.getMonth() + 1;
@@ -38,7 +38,7 @@ function formatToDateTime(dateTime) {
   if (second.toString().length == 1) {
     second = `0${second}`;
   }
-  var dateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+  const dateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
   return dateTime;
 }
 
@@ -74,11 +74,10 @@ function addCustomers(req, res) {
     last_name: req.body.last_name,
     gender: req.body.gender,
     dob: req.body.dob,
-    email: req.body.email,
-    member_since: req.body.member_since
+    email: req.body.email
   };
   newCustomer.dob = formatDate(newCustomer.dob);
-  newCustomer.member_since = formatToDateTime(newCustomer.member_since);
+  newCustomer.member_since = currentDateTime;
 
   //   sqlConnection.query(
   //     'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES ?',
