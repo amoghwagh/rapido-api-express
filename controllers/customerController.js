@@ -82,7 +82,7 @@ function addCustomers(req, res) {
     sqlConnection.query(
       'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
       Object.values(newCustomer),
-      (err, results) => {
+      err => {
         if (err) throw err;
         res.send(newCustomer);
       }
@@ -96,7 +96,7 @@ function addCustomers(req, res) {
 
 function singleCustomerInformation(req, res) {
   if (req.params.id) {
-    sqlConnection.query('SELECT * from customers where = ?', req.params.id, (err, results) => {
+    sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, results) => {
       if (err) throw err;
       res.send(results);
     });
