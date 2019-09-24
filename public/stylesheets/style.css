@@ -11,6 +11,22 @@ body {
   font: 1em 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
+#register-page {
+  width: 50%;
+  margin-top: 5em;
+}
+
+#login-page {
+  width: 50%;
+  margin-top: 5em;
+}
+
+.login-form-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bolder;
+  font-size: 1.4em;
+}
+
 a {
   color: #00b7ff;
 }

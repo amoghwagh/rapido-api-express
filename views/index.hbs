@@ -1,2 +1,43 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<div id="login-page" class="row">
+    <div class="col s12 z-depth-4 card-panel">
+        <form class="login-form" method="POST" action="./">
+            <div class="row">
+                <div class="input-field col s12 center">
+                    <p class="center login-form-text">DEVELOPERS API LOGIN</p>
+                </div>
+            </div>
+            <div class="row margin">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">
+                        how_to_reg
+                    </i>
+                    <input id="username" type="text" name="uname">
+                    <label for="username" class="center-align">Username</label>
+                </div>
+            </div>
+            <div class="row margin">
+                <div class="input-field col s12">
+                    <i class="material-icons prefix">
+                        vpn_key
+                    </i>
+                    <input id="password" type="password" name="passwd">
+                    <label for="password">Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <a href="index.html" class="grey darken-4 btn waves-effect waves-light col s12">Login</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <p class="margin center-align medium-small">Not Registered?</p>
+                    <p class="margin center-align medium-small"><a href="./register">Register Now!</a>
+                    </p>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+</div>
