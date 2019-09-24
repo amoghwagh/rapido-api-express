@@ -1,0 +1,26 @@
+<table class="customersTable">
+    <thead>
+        <tr>
+            <th>Customer's ID</th>
+            <th>Captain's ID</th>
+            <th>Source</th>
+            <th>Destination</th>
+            <th>Distance</th>
+            <th>Fare</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {{#each result}}
+        <tr>
+            <td>{{this.rid}}</td>
+            <td>{{this.cid}}</td>
+            <td>{{this.source}}</td>
+            <td>{{this.dest}}</td>
+            <td>{{this.dist}} Kms</td>
+            <td>{{this.fare}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

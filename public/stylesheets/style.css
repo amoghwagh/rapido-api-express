@@ -8,7 +8,9 @@ nav {
 }
 
 body {
-  font: 14px 'Lucida Grande', Helvetica, Arial, sans-serif;
+  font: 1em 'Lucida Grande', Helvetica, Arial, sans-serif;
+  background: url('../images/background.jpg') ;
+  color: white;
 }
 
 a {
