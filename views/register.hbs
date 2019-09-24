@@ -1,0 +1,38 @@
+<div id="register-page" class="row">
+    <div class="col s12 z-depth-6 card-panel">
+        <form class="register-form" method="POST" action="/register">
+            <div class="row margin">
+                <div class="input-field col s12">
+                    <i class="mdi-social-person-outline prefix"></i>
+                    <input id="user_name" type="text" class="validate" name="uname">
+                    <label for="user_name" class="center-align">Username</label>
+                </div>
+            </div>
+            <div class="row margin">
+                <div class="input-field col s12">
+                    <i class="mdi-communication-email prefix"></i>
+                    <input id="user_email" type="email" class="validate" name="email">
+                    <label for="user_email" class="center-align">Email</label>
+                </div>
+            </div>
+            <div class="row margin">
+                <div class="input-field col s12">
+                    <i class="mdi-action-lock-outline prefix"></i>
+                    <input id="user_passw" type="password" class="validate" name="passwd">
+                    <label for="user_passw">Password</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <button type="submit"
+                        class="grey darken-4 btn waves-effect waves-light col s12 center-align hoverable">REGISTER
+                        NOW</button>
+                </div>
+                <div class="input-field col s12">
+                    <p class="margin center medium-small sign-up">Already have an account? <a href="../">Login</a>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
