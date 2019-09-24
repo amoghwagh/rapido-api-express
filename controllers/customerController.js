@@ -1,6 +1,5 @@
 /* eslint-disable func-names */
 // const customerModel = require('../models/customer');
-
 const Joi = require('joi');
 const sqlConnection = require('../config/connection');
 
