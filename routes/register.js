@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const express = require('express');
 const registerController = require('../controllers/registerController');
 
