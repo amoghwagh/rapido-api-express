@@ -146,9 +146,23 @@ function updateCustomerInformation(req, res) {
   }
 }
 
+function deleteCustomerInformation(req, res) {
+  sqlConnection.query('DELETE from customers where id= ?', req.params.id, (err, result) => {
+    if (err) {
+      sqlConnection.end();
+      res.status(404);
+      res.send('DELETE UNSUCCESSFUL!');
+    } else {
+      res.send('DELETE SUCCESSFUL!');
+    }
+  });
+  sqlConnection.end();
+}
+
 module.exports = {
   customersInformation,
   addCustomers,
   singleCustomerInformation,
-  updateCustomerInformation
+  updateCustomerInformation,
+  deleteCustomerInformation
 };
