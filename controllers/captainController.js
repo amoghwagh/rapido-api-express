@@ -42,7 +42,7 @@ function currentDateTime() {
   return dateTime;
 }
 
-const addCustomersValidator = Joi.object({
+const CaptainsValidator = Joi.object({
   first_name: Joi.string()
     .alphanum()
     .required(),
@@ -57,7 +57,7 @@ const addCustomersValidator = Joi.object({
   member_since: Joi.required()
 });
 
-function customersInformation(req, res, next) {
+function captainsInformation(req, res, next) {
   sqlConnection.query('SELECT * FROM customers', function(err, result) {
     if (err) next(err);
     if (req.headers['content-type'] === 'application/json') {
@@ -68,7 +68,7 @@ function customersInformation(req, res, next) {
   });
 }
 
-function addCustomers(req, res) {
+function addCaptains(req, res) {
   const newCustomer = {
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -98,7 +98,7 @@ function addCustomers(req, res) {
   }
 }
 
-function singleCustomerInformation(req, res, next) {
+function singleCaptainsInformation(req, res, next) {
   sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, result) => {
     if (result.length !== 0) {
       res.render('customers', { result });
@@ -109,7 +109,7 @@ function singleCustomerInformation(req, res, next) {
   });
 }
 
-function updateCustomerInformation(req, res) {
+function updateCaptainsInformation(req, res) {
   const updatedInfo = {
     first_name: req.body.first_name,
     last_name: req.body.last_name,
@@ -142,7 +142,7 @@ function updateCustomerInformation(req, res) {
   }
 }
 
-function deleteCustomerInformation(req, res) {
+function deleteCaptainsInformation(req, res) {
   sqlConnection.query('DELETE from customers where id= ?', req.params.id, (err, result) => {
     if (result.affectedRows === 0) {
       res.status(404);
@@ -154,9 +154,9 @@ function deleteCustomerInformation(req, res) {
 }
 
 module.exports = {
-  customersInformation,
-  addCustomers,
-  singleCustomerInformation,
-  updateCustomerInformation,
-  deleteCustomerInformation
+  captainsInformation,
+  addCaptains,
+  singleCaptainsInformation,
+  updateCaptainsInformation,
+  deleteCaptainsInformation
 };

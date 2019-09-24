@@ -4,9 +4,11 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const exphbs = require('express-handlebars');
+const hbh = require('./config/handlebars-helpers.js');
 
 const indexRouter = require('./routes/index');
 const customersRouter = require('./routes/customers');
+const captainsRouter = require('./routes/captains');
 
 const app = express();
 
@@ -17,7 +19,7 @@ app.engine(
   exphbs({
     defaultLayout: 'layout',
     extname: '.hbs',
-    helpers: require('./config/handlebars-helpers.js'),
+    helpers: hbh,
     layoutsDir: 'views/layouts/'
   })
 );
@@ -32,6 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/customers', customersRouter);
+app.use('/captains', captainsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
