@@ -50,7 +50,7 @@ const addCustomersValidator = Joi.object({
     .alphanum()
     .required(),
   gender: Joi.string().required(),
-  dob: Joi.number().integer(),
+  dob: Joi.string().required(),
   email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
   member_since: Joi.required()
 });
@@ -62,7 +62,6 @@ function customersInformation(req, res) {
       res.send(result);
     } else {
       res.render('customers', { result });
-
       sqlConnection.end();
     }
   });
@@ -78,36 +77,78 @@ function addCustomers(req, res) {
   };
   newCustomer.dob = formatDate(newCustomer.dob);
   newCustomer.member_since = currentDateTime();
-  if (Joi.validate(newCustomer, addCustomersValidator)) {
+  const { error } = Joi.validate(newCustomer, addCustomersValidator);
+  if (error === null) {
     sqlConnection.query(
       'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
       Object.values(newCustomer),
       err => {
-        if (err) throw err;
-        res.send(newCustomer);
+        if (err) {
+          sqlConnection.end();
+          res.status(404);
+          res.send('ID Not Found');
+        } else {
+          res.send(newCustomer);
+        }
       }
     );
     sqlConnection.end();
   } else {
     res.status(400);
-    res.send('Query Not Executed');
+    res.send('Validation Error!');
   }
 }
 
 function singleCustomerInformation(req, res) {
   sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, result) => {
-    if (err) throw err;
-    if (Object.keys(result).length > 0) {
-      res.render('customers', { result });
-    } else {
+    if (err) {
+      sqlConnection.end();
       res.status(404);
       res.send('ID Not Found');
+    } else {
+      res.render('customers', { result });
     }
   });
+  sqlConnection.end();
+}
+
+function updateCustomerInformation(req, res) {
+  const updatedInfo = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    email: req.body.email,
+    member_since: req.body.member_since
+  };
+  updatedInfo.dob = formatDate(updatedInfo.dob);
+  const { error } = Joi.validate(updatedInfo, addCustomersValidator);
+  const queryValues = Object.values(updatedInfo);
+  queryValues[queryValues.length - 1] = req.params.id;
+  if (error === null) {
+    sqlConnection.query(
+      'UPDATE customers SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE id = ? ',
+      queryValues,
+      err => {
+        if (err) {
+          sqlConnection.end();
+          res.status(404);
+          res.send('Update Unsuccessful! Check the input');
+        } else {
+          res.send(updatedInfo);
+        }
+      }
+    );
+    sqlConnection.end();
+  } else {
+    res.status(400);
+    res.send('Validation Error!');
+  }
 }
 
 module.exports = {
   customersInformation,
   addCustomers,
-  singleCustomerInformation
+  singleCustomerInformation,
+  updateCustomerInformation
 };
