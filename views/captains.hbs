@@ -1,0 +1,28 @@
+<table class="customersTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Gender</th>
+            <th>Date of Birth</th>
+            <th>Email</th>
+            <th>Joined Date</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {{#each result}}
+        <tr>
+            <td>{{this.cid}}</td>
+            <td>{{this.first_name}}</td>
+            <td>{{this.last_name}}</td>
+            <td>{{this.gender}}</td>
+            <td>{{{formatDate this.dob}}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.date_joined}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
