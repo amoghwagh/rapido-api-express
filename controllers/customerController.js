@@ -36,7 +36,7 @@ function customersInformation(req, res, next) {
   });
 }
 
-function addCustomers(req, res) {
+function addCustomers(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const newCustomer = {
@@ -49,12 +49,12 @@ function addCustomers(req, res) {
     // newCustomer.dob = formatDate(newCustomer.dob);
     newCustomer.member_since = currentDateTime();
     const { error } = Joi.validate(newCustomer, addCustomersValidator);
-    console.log(error);
     if (error === null) {
       sqlConnection.query(
         'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
         Object.values(newCustomer),
         (err, results) => {
+          if (err) next(err);
           if (results.affectedRows === 0) {
             res.status(404);
             res.send('INSERT UNSUCCESSFUL!');
@@ -72,8 +72,9 @@ function addCustomers(req, res) {
   }
 }
 
-function singleCustomerInformation(req, res) {
+function singleCustomerInformation(req, res, next) {
   sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, result) => {
+    if (err) next(err);
     if (result.length !== 0) {
       res.render('customers', { result });
     } else {
@@ -83,7 +84,7 @@ function singleCustomerInformation(req, res) {
   });
 }
 
-function updateCustomerInformation(req, res) {
+function updateCustomerInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const updatedInfo = {
@@ -104,6 +105,7 @@ function updateCustomerInformation(req, res) {
         'UPDATE customers SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE id = ? ',
         queryValues,
         (err, result) => {
+          if (err) next(err);
           if (result.affectedRows === 0) {
             res.status(404);
             res.send('Update Unsuccessful! Check the input');
@@ -121,10 +123,11 @@ function updateCustomerInformation(req, res) {
   }
 }
 
-function deleteCustomerInformation(req, res) {
+function deleteCustomerInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     sqlConnection.query('DELETE from customers where id= ?', req.params.id, (err, result) => {
+      if (err) next(err);
       if (result.affectedRows === 0) {
         res.status(404);
         res.send('DELETE UNSUCCESSFUL!');

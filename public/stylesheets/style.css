@@ -49,3 +49,6 @@ a {
 .submit-form .input-field input[type='text']:focus + label {
   color: #000;
 }
+input::-webkit-input-placeholder {
+  color: rgb(82, 81, 81) !important;
+}

@@ -17,7 +17,7 @@ function showMainPage(req, res) {
   res.render('index');
 }
 
-function validateLogin(req, res) {
+function validateLogin(req, res, next) {
   const loginUser = {
     user_name: req.body.uname,
     password: req.body.passwd
@@ -29,6 +29,7 @@ function validateLogin(req, res) {
       'SELECT password FROM users where user_name = ?',
       loginUser.user_name,
       (err, result) => {
+        if (err) next(err);
         if (result.length === 0) {
           res.status(404);
           res.render('index', { status: 'USERNAME NOT FOUND' });

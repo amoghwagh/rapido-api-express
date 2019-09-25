@@ -21,9 +21,10 @@ function ridesInformation(req, res, next) {
   });
 }
 
-function singleRideInformation(req, res) {
+function singleRideInformation(req, res, next) {
   sqlConnection.query('SELECT * from rides where rid= ?', req.params.id, (err, result) => {
     if (result.length !== 0) {
+      if (err) next(err);
       res.render('rides', { result });
     } else {
       res.status(404);

@@ -37,7 +37,7 @@ function captainsInformation(req, res, next) {
   });
 }
 
-function addCaptains(req, res) {
+function addCaptains(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const newCaptain = {
@@ -55,6 +55,7 @@ function addCaptains(req, res) {
         'INSERT INTO captains(first_name,last_name,gender,dob,email,date_joined) VALUES (?,?,?,?,?,?)',
         Object.values(newCaptain),
         (err, results) => {
+          if (err) next(err);
           if (results.affectedRows === 0) {
             res.status(404);
             res.send('INSERT UNSUCCESSFUL!');
@@ -72,8 +73,9 @@ function addCaptains(req, res) {
   }
 }
 
-function singleCaptainsInformation(req, res) {
+function singleCaptainsInformation(req, res, next) {
   sqlConnection.query('SELECT * from captains where cid= ?', req.params.id, (err, result) => {
+    if (err) next(err);
     if (result.length !== 0) {
       res.render('captains', { result });
     } else {
@@ -83,7 +85,7 @@ function singleCaptainsInformation(req, res) {
   });
 }
 
-function updateCaptainsInformation(req, res) {
+function updateCaptainsInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const updatedInfo = {
@@ -104,6 +106,7 @@ function updateCaptainsInformation(req, res) {
         'UPDATE captains SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE cid = ? ',
         queryValues,
         (err, result) => {
+          if (err) next(err);
           if (result.affectedRows === 0) {
             res.status(404);
             res.send('Update Unsuccessful! Check the input');
@@ -121,10 +124,11 @@ function updateCaptainsInformation(req, res) {
   }
 }
 
-function deleteCaptainsInformation(req, res) {
+function deleteCaptainsInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     sqlConnection.query('DELETE from captains where cid= ?', req.params.id, (err, result) => {
+      if (err) next(err);
       if (result.affectedRows === 0) {
         res.status(404);
         res.send('DELETE UNSUCCESSFUL!');
