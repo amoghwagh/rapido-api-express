@@ -15,6 +15,9 @@ const usersValidator = Joi.object({
     .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
     .required()
 });
+function renderPage(req, res) {
+  res.render('register');
+}
 
 function register(req, res) {
   const newUser = {
@@ -48,5 +51,6 @@ function register(req, res) {
 }
 
 module.exports = {
+  renderPage,
   register
 };
