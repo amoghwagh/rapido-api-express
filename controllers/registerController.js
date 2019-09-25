@@ -15,6 +15,7 @@ const usersValidator = Joi.object({
     .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
     .required()
 });
+
 function renderPage(req, res) {
   res.render('register');
 }
@@ -35,10 +36,12 @@ function register(req, res) {
     sqlConnection.query(
       'INSERT INTO users(user_name,password,email) VALUES (?,?,?)',
       Object.values(newUser),
-      (err, results) => {
-        if (results.affectedRows === 0) {
+      err => {
+        if (err) {
           res.status(404);
-          res.render('register', { status: 'Register Unsuccessful!' });
+          res.render('register', {
+            status: 'Register Unsuccessful! Please try a new Username'
+          });
         } else {
           res.render('register', { status: 'Register Successful!' });
         }
