@@ -14,8 +14,12 @@ const captainsValidator = Joi.object({
   last_name: Joi.string()
     .alphanum()
     .required(),
-  gender: Joi.string().required(),
-  dob: Joi.string().required(),
+  gender: Joi.string()
+    .valid('M', 'F')
+    .required(),
+  dob: Joi.date()
+    .iso()
+    .required(),
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
     .required(),
