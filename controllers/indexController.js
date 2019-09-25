@@ -1,5 +1,6 @@
 const Joi = require('joi');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const sqlConnection = require('../config/connection');
 
 const usersValidator = Joi.object({
@@ -13,7 +14,7 @@ const usersValidator = Joi.object({
 });
 
 function showMainPage(req, res) {
-  res.render('index', { title: 'Rapido' });
+  res.render('index');
 }
 
 function validateLogin(req, res) {
@@ -34,7 +35,11 @@ function validateLogin(req, res) {
         } else {
           bcrypt.compare(loginUser.password, result[0].password, (err, check) => {
             if (check === true) {
-              res.send('Authenticated');
+              const token = jwt.sign({ loginUser }, 'NotASecretAnymore', { expiresIn: '1h' });
+              res.cookie('jwt', token);
+              res.render('index', {
+                status: 'Token Is Generated! You have access to the endpoints for 1 hour from now.'
+              });
             } else {
               res.send('Invalid Password!');
             }

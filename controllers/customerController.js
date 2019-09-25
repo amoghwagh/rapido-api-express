@@ -1,45 +1,10 @@
 /* eslint-disable func-names */
 // const customerModel = require('../models/customer');
 const Joi = require('joi');
+const jwt = require('jsonwebtoken');
 const sqlConnection = require('../config/connection');
-
-function formatDate(date) {
-  const formatedMysqlString = new Date(
-    new Date(new Date(new Date(date)).toISOString()).getTime() -
-      new Date(date).getTimezoneOffset() * 60000
-  )
-    .toISOString()
-    .slice(0, 10)
-    .replace('T', ' ');
-  return formatedMysqlString;
-}
-
-function currentDateTime() {
-  const now = new Date();
-  const year = now.getFullYear();
-  let month = now.getMonth() + 1;
-  let day = now.getDate();
-  let hour = now.getHours();
-  let minute = now.getMinutes();
-  let second = now.getSeconds();
-  if (month.toString().length == 1) {
-    month = `0${month}`;
-  }
-  if (day.toString().length == 1) {
-    day = `0${day}`;
-  }
-  if (hour.toString().length == 1) {
-    hour = `0${hour}`;
-  }
-  if (minute.toString().length == 1) {
-    minute = `0${minute}`;
-  }
-  if (second.toString().length == 1) {
-    second = `0${second}`;
-  }
-  const dateTime = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-  return dateTime;
-}
+const formatDate = require('../utils/formatDate');
+const currentDateTime = require('../utils/currentDateTime');
 
 const addCustomersValidator = Joi.object({
   first_name: Joi.string()
@@ -68,36 +33,41 @@ function customersInformation(req, res, next) {
 }
 
 function addCustomers(req, res) {
-  const newCustomer = {
-    first_name: req.body.first_name,
-    last_name: req.body.last_name,
-    gender: req.body.gender,
-    dob: req.body.dob,
-    email: req.body.email
-  };
-  newCustomer.dob = formatDate(newCustomer.dob);
-  newCustomer.member_since = currentDateTime();
-  const { error } = Joi.validate(newCustomer, addCustomersValidator);
-  if (error === null) {
-    sqlConnection.query(
-      'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
-      Object.values(newCustomer),
-      (err, results) => {
-        if (results.affectedRows === 0) {
-          res.status(404);
-          res.send('INSERT UNSUCCESSFUL!');
-        } else {
-          res.send(newCustomer);
+  try {
+    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
+    const newCustomer = {
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      gender: req.body.gender,
+      dob: req.body.dob,
+      email: req.body.email
+    };
+    newCustomer.dob = formatDate(newCustomer.dob);
+    newCustomer.member_since = currentDateTime();
+    const { error } = Joi.validate(newCustomer, addCustomersValidator);
+    if (error === null) {
+      sqlConnection.query(
+        'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
+        Object.values(newCustomer),
+        (err, results) => {
+          if (results.affectedRows === 0) {
+            res.status(404);
+            res.send('INSERT UNSUCCESSFUL!');
+          } else {
+            res.send(newCustomer);
+          }
         }
-      }
-    );
-  } else {
-    res.status(400);
-    res.send('Validation Error! Check Input parameters');
+      );
+    } else {
+      res.status(400);
+      res.send('Validation Error! Check Input parameters');
+    }
+  } catch (err) {
+    res.status(403).send('You are not Authorized to access');
   }
 }
 
-function singleCustomerInformation(req, res, next) {
+function singleCustomerInformation(req, res) {
   sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, result) => {
     if (result.length !== 0) {
       res.render('customers', { result });
@@ -109,47 +79,57 @@ function singleCustomerInformation(req, res, next) {
 }
 
 function updateCustomerInformation(req, res) {
-  const updatedInfo = {
-    first_name: req.body.first_name,
-    last_name: req.body.last_name,
-    gender: req.body.gender,
-    dob: req.body.dob,
-    email: req.body.email,
-    member_since: req.body.member_since
-  };
-  const { error } = Joi.validate(updatedInfo, addCustomersValidator);
+  try {
+    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
+    const updatedInfo = {
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      gender: req.body.gender,
+      dob: req.body.dob,
+      email: req.body.email,
+      member_since: req.body.member_since
+    };
+    const { error } = Joi.validate(updatedInfo, addCustomersValidator);
 
-  updatedInfo.dob = formatDate(updatedInfo.dob);
-  const queryValues = Object.values(updatedInfo);
-  queryValues[queryValues.length - 1] = req.params.id;
-  if (error === null && queryValues.length === 6) {
-    sqlConnection.query(
-      'UPDATE customers SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE id = ? ',
-      queryValues,
-      (err, result) => {
-        if (result.affectedRows === 0) {
-          res.status(404);
-          res.send('Update Unsuccessful! Check the input');
-        } else {
-          res.send(updatedInfo);
+    updatedInfo.dob = formatDate(updatedInfo.dob);
+    const queryValues = Object.values(updatedInfo);
+    queryValues[queryValues.length - 1] = req.params.id;
+    if (error === null && queryValues.length === 6) {
+      sqlConnection.query(
+        'UPDATE customers SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE id = ? ',
+        queryValues,
+        (err, result) => {
+          if (result.affectedRows === 0) {
+            res.status(404);
+            res.send('Update Unsuccessful! Check the input');
+          } else {
+            res.send(updatedInfo);
+          }
         }
-      }
-    );
-  } else {
-    res.status(400);
-    res.send('Validation Error! Check Input parameters');
+      );
+    } else {
+      res.status(400);
+      res.send('Validation Error! Check Input parameters');
+    }
+  } catch (err) {
+    res.status(403).send('You are not Authorized to access');
   }
 }
 
 function deleteCustomerInformation(req, res) {
-  sqlConnection.query('DELETE from customers where id= ?', req.params.id, (err, result) => {
-    if (result.affectedRows === 0) {
-      res.status(404);
-      res.send('DELETE UNSUCCESSFUL!');
-    } else {
-      res.send('DELETE SUCCESSFUL!');
-    }
-  });
+  try {
+    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
+    sqlConnection.query('DELETE from customers where id= ?', req.params.id, (err, result) => {
+      if (result.affectedRows === 0) {
+        res.status(404);
+        res.send('DELETE UNSUCCESSFUL!');
+      } else {
+        res.send('DELETE SUCCESSFUL!');
+      }
+    });
+  } catch (err) {
+    res.status(403).send('You are not Authorized to access');
+  }
 }
 
 module.exports = {

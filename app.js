@@ -3,7 +3,6 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const logger = require('morgan');
 const exphbs = require('express-handlebars');
 const hbh = require('./config/handlebars-helpers.js');
 
@@ -29,7 +28,6 @@ app.engine(
 app.set('view engine', '.hbs');
 app.set('view engine', 'hbs');
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
