@@ -27,7 +27,7 @@ function customersInformation(req, res, next) {
     if (req.headers['content-type'] === 'application/json') {
       res.send(result);
     } else {
-      res.render('customers', { result });
+      res.render('customersForm', { result });
     }
   });
 }
