@@ -35,4 +35,17 @@ a {
   width: 80%;
   margin-left: 15em;
   margin-top: 3em;
+  max-height: 7em;
+}
+
+.submit-form {
+  width: 60%;
+  margin: auto;
+  margin-top: 5em;
+}
+.input-field label {
+  color: #000;
+}
+.submit-form .input-field input[type='text']:focus + label {
+  color: #000;
 }

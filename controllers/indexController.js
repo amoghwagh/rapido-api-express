@@ -35,7 +35,10 @@ function validateLogin(req, res) {
         } else {
           bcrypt.compare(loginUser.password, result[0].password, (err, check) => {
             if (check === true) {
-              const token = jwt.sign({ loginUser }, 'NotASecretAnymore', { expiresIn: '1h' });
+              const jwtUser = {
+                user_name: loginUser.user_name
+              };
+              const token = jwt.sign({ jwtUser }, 'NotASecretAnymore', { expiresIn: '1h' });
               res.cookie('jwt', token);
               res.render('index', {
                 status: 'Token Is Generated! You have access to the endpoints for 1 hour from now.'

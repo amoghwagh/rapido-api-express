@@ -42,9 +42,10 @@ function addCustomers(req, res) {
       dob: req.body.dob,
       email: req.body.email
     };
-    newCustomer.dob = formatDate(newCustomer.dob);
+    // newCustomer.dob = formatDate(newCustomer.dob);
     newCustomer.member_since = currentDateTime();
     const { error } = Joi.validate(newCustomer, addCustomersValidator);
+    console.log(error);
     if (error === null) {
       sqlConnection.query(
         'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
