@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const validation = Joi.object({
+const addCustomersValidator = Joi.object({
   first_name: Joi.string()
     .alphanum()
     .required(),
@@ -19,4 +19,4 @@ const validation = Joi.object({
   member_since: Joi.required()
 });
 
-module.exports = validation;
+module.exports = addCustomersValidator;

@@ -3,7 +3,6 @@
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const createError = require('http-errors');
-const sqlConnection = require('../config/connection');
 
 const formatDate = require('../utils/formatDate');
 const currentDateTime = require('../utils/currentDateTime');
@@ -90,8 +89,10 @@ function updateCustomerInformation(req, res, next) {
     const { error } = Joi.validate(updatedInfo, addCustomersValidator);
 
     updatedInfo.dob = formatDate(updatedInfo.dob);
+
     const queryValues = Object.values(updatedInfo);
     queryValues[queryValues.length - 1] = req.params.id;
+
     if (error === null && queryValues.length === 6) {
       try {
         const result = updateCustomerQuery(queryValues);
