@@ -3,27 +3,11 @@
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const sqlConnection = require('../config/connection');
+
 const formatDate = require('../utils/formatDate');
 const currentDateTime = require('../utils/currentDateTime');
 
-const addCustomersValidator = Joi.object({
-  first_name: Joi.string()
-    .alphanum()
-    .required(),
-  last_name: Joi.string()
-    .alphanum()
-    .required(),
-  gender: Joi.string()
-    .valid('M', 'F')
-    .required(),
-  dob: Joi.date()
-    .iso()
-    .required(),
-  email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-    .required(),
-  member_since: Joi.required()
-});
+const addCustomersValidator = require('../validations/customers');
 
 function customersInformation(req, res, next) {
   sqlConnection.query('SELECT * FROM customers', function(err, result) {

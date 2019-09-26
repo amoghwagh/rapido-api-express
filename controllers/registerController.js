@@ -3,18 +3,7 @@ const Joi = require('joi');
 
 const sqlConnection = require('../config/connection');
 
-const usersValidator = Joi.object({
-  user_name: Joi.string()
-    .alphanum()
-    .required(),
-  password: Joi.string()
-    .required()
-    .min(3)
-    .max(20),
-  email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-    .required()
-});
+const usersValidator = require('../validations/register');
 
 function renderPage(req, res) {
   res.render('register');

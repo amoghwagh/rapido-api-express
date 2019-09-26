@@ -2,16 +2,7 @@ const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sqlConnection = require('../config/connection');
-
-const usersValidator = Joi.object({
-  user_name: Joi.string()
-    .alphanum()
-    .required(),
-  password: Joi.string()
-    .required()
-    .min(3)
-    .max(20)
-});
+const usersValidator = require('../validations/users');
 
 function showMainPage(req, res) {
   res.render('index');

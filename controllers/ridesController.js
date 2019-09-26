@@ -1,14 +1,4 @@
-// const Joi = require('joi');
 const sqlConnection = require('../config/connection');
-
-// const ridesValidator = Joi.object({
-//   rid: Joi.number().required(),
-//   cid: Joi.number().required(),
-//   source: Joi.string().required(),
-//   dest: Joi.string().required(),
-//   dist: Joi.string().required(),
-//   fare: Joi.string().required()
-// });
 
 function ridesInformation(req, res, next) {
   sqlConnection.query('SELECT * FROM rides', (err, result) => {

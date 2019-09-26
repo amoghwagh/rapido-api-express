@@ -4,27 +4,10 @@
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const sqlConnection = require('../config/connection');
+
 const formatDate = require('../utils/formatDate');
 const currentDateTime = require('../utils/currentDateTime');
-
-const captainsValidator = Joi.object({
-  first_name: Joi.string()
-    .alphanum()
-    .required(),
-  last_name: Joi.string()
-    .alphanum()
-    .required(),
-  gender: Joi.string()
-    .valid('M', 'F')
-    .required(),
-  dob: Joi.date()
-    .iso()
-    .required(),
-  email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
-    .required(),
-  date_joined: Joi.required()
-});
+const captainsValidator = require('../validations/captains.js');
 
 function captainsInformation(req, res, next) {
   sqlConnection.query('SELECT * FROM captains', function(err, result) {
