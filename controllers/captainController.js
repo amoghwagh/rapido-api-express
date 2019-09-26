@@ -3,24 +3,35 @@
 
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
-const sqlConnection = require('../config/connection');
+const createError = require('http-errors');
 
 const formatDate = require('../utils/formatDate');
 const currentDateTime = require('../utils/currentDateTime');
+
 const captainsValidator = require('../validations/captains.js');
 
-function captainsInformation(req, res, next) {
-  sqlConnection.query('SELECT * FROM captains', function(err, result) {
-    if (err) next(err);
+const captainsQueries = require('../queries/captains');
+
+const { showCaptainsQuery } = captainsQueries;
+const { addCaptainsQuery } = captainsQueries;
+const { updateCaptainQuery } = captainsQueries;
+const { singleCaptainInfoQuery } = captainsQueries;
+const { deleteCaptainInfoQuery } = captainsQueries;
+
+async function captainsInformation(req, res, next) {
+  try {
+    const result = await showCaptainsQuery();
     if (req.headers['content-type'] === 'application/json') {
       res.send(result);
     } else {
       res.render('captains', { result });
     }
-  });
+  } catch (err) {
+    next(err);
+  }
 }
 
-function addCaptains(req, res, next) {
+async function addCaptains(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const newCaptain = {
@@ -34,41 +45,38 @@ function addCaptains(req, res, next) {
     newCaptain.date_joined = currentDateTime();
     const { error } = Joi.validate(newCaptain, captainsValidator);
     if (error === null) {
-      sqlConnection.query(
-        'INSERT INTO captains(first_name,last_name,gender,dob,email,date_joined) VALUES (?,?,?,?,?,?)',
-        Object.values(newCaptain),
-        (err, results) => {
-          if (err) next(err);
-          if (results.affectedRows === 0) {
-            res.status(404);
-            res.send('INSERT UNSUCCESSFUL!');
-          } else {
-            res.send(newCaptain);
-          }
+      try {
+        const results = await addCaptainsQuery(Object.values(newCaptain));
+        if (results.affectedRows === 0) {
+          next(createError(404, 'INSERT UNSUCCESSFUL!'));
+        } else {
+          res.send(newCaptain);
         }
-      );
+      } catch (err) {
+        next(err);
+      }
     } else {
-      res.status(400);
-      res.send('Validation Error! Check Input parameters');
+      next(createError(400, 'Validation Error! Check Input parameters'));
     }
   } catch (err) {
-    res.status(403).send('You are not Authorized to access');
+    next(createError(403, 'You are not Authorized to access'));
   }
 }
 
-function singleCaptainsInformation(req, res, next) {
-  sqlConnection.query('SELECT * from captains where cid= ?', req.params.id, (err, result) => {
-    if (err) next(err);
+async function singleCaptainsInformation(req, res, next) {
+  try {
+    const result = await singleCaptainInfoQuery(req.params.id);
     if (result.length !== 0) {
       res.render('captains', { result });
     } else {
-      res.status(404);
-      res.send('ID Not Found');
+      next(createError(404, 'ID Not Found'));
     }
-  });
+  } catch (err) {
+    next(err);
+  }
 }
 
-function updateCaptainsInformation(req, res, next) {
+async function updateCaptainsInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const updatedInfo = {
@@ -84,43 +92,42 @@ function updateCaptainsInformation(req, res, next) {
     updatedInfo.dob = formatDate(updatedInfo.dob);
     const queryValues = Object.values(updatedInfo);
     queryValues[queryValues.length - 1] = req.params.id;
+
     if (error === null && queryValues.length === 6) {
-      sqlConnection.query(
-        'UPDATE captains SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE cid = ? ',
-        queryValues,
-        (err, result) => {
-          if (err) next(err);
-          if (result.affectedRows === 0) {
-            res.status(404);
-            res.send('Update Unsuccessful! Check the input');
-          } else {
-            res.send(updatedInfo);
-          }
+      try {
+        const result = await updateCaptainQuery(queryValues);
+        if (result.affectedRows === 0) {
+          next(createError(404, 'Update Unsuccessful! Check the input'));
+        } else {
+          res.send(updatedInfo);
         }
-      );
+      } catch (err) {
+        next(err);
+      }
     } else {
-      res.status(400);
-      res.send('Validation Error! Check Input parameters');
+      next(createError(400, 'Validation Error! Check Input parameters'));
     }
   } catch (err) {
-    res.status(403).send('You are not Authorized to access');
+    next(createError(403, 'You are not Authorized to access'));
   }
 }
 
-function deleteCaptainsInformation(req, res, next) {
+async function deleteCaptainsInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    sqlConnection.query('DELETE from captains where cid= ?', req.params.id, (err, result) => {
-      if (err) next(err);
+    try {
+      const result = await deleteCaptainInfoQuery(req.params.id);
       if (result.affectedRows === 0) {
         res.status(404);
         res.send('DELETE UNSUCCESSFUL!');
       } else {
         res.send('DELETE SUCCESSFUL!');
       }
-    });
+    } catch (err) {
+      next(err);
+    }
   } catch (err) {
-    res.status(403).send('You are not Authorized to access');
+    next(createError(403, 'You are not Authorized to access'));
   }
 }
 

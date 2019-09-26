@@ -75,7 +75,7 @@ async function singleCustomerInformation(req, res, next) {
   }
 }
 
-function updateCustomerInformation(req, res, next) {
+async function updateCustomerInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const updatedInfo = {
@@ -95,7 +95,7 @@ function updateCustomerInformation(req, res, next) {
 
     if (error === null && queryValues.length === 6) {
       try {
-        const result = updateCustomerQuery(queryValues);
+        const result = await updateCustomerQuery(queryValues);
         if (result.affectedRows === 0) {
           next(createError(404, 'Update Unsuccessful! Check the input'));
         } else {
@@ -112,11 +112,11 @@ function updateCustomerInformation(req, res, next) {
   }
 }
 
-function deleteCustomerInformation(req, res, next) {
+async function deleteCustomerInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     try {
-      const result = deleteCustomerInfoQuery(req.params.id);
+      const result = await deleteCustomerInfoQuery(req.params.id);
       if (result.affectedRows === 0) {
         res.status(404);
         res.send('DELETE UNSUCCESSFUL!');
