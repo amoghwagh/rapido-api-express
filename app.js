@@ -4,7 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const exphbs = require('express-handlebars');
 const createError = require('http-errors');
-const hbh = require('./config/handlebars-helpers.js');
+const hbh = require('./utils/handlebars-helpers.js');
 
 const indexRouter = require('./routes/index');
 const customersRouter = require('./routes/customers');
@@ -14,7 +14,6 @@ const register = require('./routes/register');
 
 const app = express();
 
-// view engine setup
 app.engine(
   'hbs',
   exphbs({
