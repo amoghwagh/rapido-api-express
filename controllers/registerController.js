@@ -1,15 +1,14 @@
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 
-const sqlConnection = require('../config/connection');
-
 const usersValidator = require('../validations/register');
+const registerQuery = require('../queries/register');
 
 function renderPage(req, res) {
   res.render('register');
 }
 
-function register(req, res) {
+async function register(req, res) {
   const newUser = {
     user_name: req.body.uname,
     password: req.body.passwd,
@@ -22,23 +21,18 @@ function register(req, res) {
   newUser.password = hashedPass;
 
   if (error === null) {
-    sqlConnection.query(
-      'INSERT INTO users(user_name,password,email) VALUES (?,?,?)',
-      Object.values(newUser),
-      err => {
-        if (err) {
-          res.status(404);
-          res.render('register', {
-            status: 'Register Unsuccessful! Please try a new Username'
-          });
-        } else {
-          res.render('register', { status: 'Register Successful!' });
-        }
-      }
-    );
+    try {
+      await registerQuery(Object.values(newUser));
+      res.render('register', { status: 'REGISTER SUCCESSFUL!' });
+    } catch (err) {
+      res.status(404);
+      res.render('register', {
+        status: 'REGISTER UNSUCCESSFUL! PLEASE TRY A NEW USERNAME'
+      });
+    }
   } else {
     res.status(400);
-    res.render('register', { status: 'Register Unsuccessful! Check Validation!' });
+    res.render('register', { status: 'REGISTER UNSUCCESSFUL! CHECK VALIDATION!' });
   }
 }
 
