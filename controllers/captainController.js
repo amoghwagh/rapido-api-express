@@ -32,34 +32,29 @@ async function captainsInformation(req, res, next) {
 }
 
 async function addCaptains(req, res, next) {
-  try {
-    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    const newCaptain = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      gender: req.body.gender,
-      dob: req.body.dob,
-      email: req.body.email
-    };
-    newCaptain.dob = formatDate(newCaptain.dob);
-    newCaptain.date_joined = currentDateTime();
-    const { error } = Joi.validate(newCaptain, captainsValidator);
-    if (error === null) {
-      try {
-        const results = await addCaptainsQuery(Object.values(newCaptain));
-        if (results.affectedRows === 0) {
-          next(createError(404, 'INSERT UNSUCCESSFUL!'));
-        } else {
-          res.send(newCaptain);
-        }
-      } catch (err) {
-        next(err);
+  const newCaptain = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    email: req.body.email
+  };
+  newCaptain.dob = formatDate(newCaptain.dob);
+  newCaptain.date_joined = currentDateTime();
+  const { error } = Joi.validate(newCaptain, captainsValidator);
+  if (error === null) {
+    try {
+      const results = await addCaptainsQuery(Object.values(newCaptain));
+      if (results.affectedRows === 0) {
+        next(createError(404, 'INSERT UNSUCCESSFUL!'));
+      } else {
+        res.send(newCaptain);
       }
-    } else {
-      next(createError(400, 'Validation Error! Check Input parameters'));
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    next(createError(403, 'You are not Authorized to access'));
+  } else {
+    next(createError(400, 'Validation Error! Check Input parameters'));
   }
 }
 
@@ -77,57 +72,47 @@ async function singleCaptainsInformation(req, res, next) {
 }
 
 async function updateCaptainsInformation(req, res, next) {
-  try {
-    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    const updatedInfo = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      gender: req.body.gender,
-      dob: req.body.dob,
-      email: req.body.email,
-      date_joined: req.body.date_joined
-    };
-    const { error } = Joi.validate(updatedInfo, captainsValidator);
+  const updatedInfo = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    email: req.body.email,
+    date_joined: req.body.date_joined
+  };
+  const { error } = Joi.validate(updatedInfo, captainsValidator);
 
-    updatedInfo.dob = formatDate(updatedInfo.dob);
-    const queryValues = Object.values(updatedInfo);
-    queryValues[queryValues.length - 1] = req.params.id;
+  updatedInfo.dob = formatDate(updatedInfo.dob);
+  const queryValues = Object.values(updatedInfo);
+  queryValues[queryValues.length - 1] = req.params.id;
 
-    if (error === null && queryValues.length === 6) {
-      try {
-        const result = await updateCaptainQuery(queryValues);
-        if (result.affectedRows === 0) {
-          next(createError(404, 'Update Unsuccessful! Check the input'));
-        } else {
-          res.send(updatedInfo);
-        }
-      } catch (err) {
-        next(err);
+  if (error === null && queryValues.length === 6) {
+    try {
+      const result = await updateCaptainQuery(queryValues);
+      if (result.affectedRows === 0) {
+        next(createError(404, 'Update Unsuccessful! Check the input'));
+      } else {
+        res.send(updatedInfo);
       }
-    } else {
-      next(createError(400, 'Validation Error! Check Input parameters'));
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    next(createError(403, 'You are not Authorized to access'));
+  } else {
+    next(createError(400, 'Validation Error! Check Input parameters'));
   }
 }
 
 async function deleteCaptainsInformation(req, res, next) {
   try {
-    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    try {
-      const result = await deleteCaptainInfoQuery(req.params.id);
-      if (result.affectedRows === 0) {
-        res.status(404);
-        res.send('DELETE UNSUCCESSFUL!');
-      } else {
-        res.send('DELETE SUCCESSFUL!');
-      }
-    } catch (err) {
-      next(err);
+    const result = await deleteCaptainInfoQuery(req.params.id);
+    if (result.affectedRows === 0) {
+      res.status(404);
+      res.send('DELETE UNSUCCESSFUL!');
+    } else {
+      res.send('DELETE SUCCESSFUL!');
     }
   } catch (err) {
-    next(createError(403, 'You are not Authorized to access'));
+    next(err);
   }
 }
 

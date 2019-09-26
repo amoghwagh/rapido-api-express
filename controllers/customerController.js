@@ -31,34 +31,29 @@ async function customersInformation(req, res, next) {
 }
 
 async function addCustomers(req, res, next) {
-  try {
-    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    const newCustomer = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      gender: req.body.gender,
-      dob: req.body.dob,
-      email: req.body.email
-    };
-    // newCustomer.dob = formatDate(newCustomer.dob);
-    newCustomer.member_since = currentDateTime();
-    const { error } = Joi.validate(newCustomer, addCustomersValidator);
-    if (error === null) {
-      try {
-        const results = await addCustomerQuery(Object.values(newCustomer));
-        if (results.affectedRows === 0) {
-          next(createError(404, 'INSERT UNSUCCESSFUL!'));
-        } else {
-          res.send(newCustomer);
-        }
-      } catch (err) {
-        next(err);
+  const newCustomer = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    email: req.body.email
+  };
+  // newCustomer.dob = formatDate(newCustomer.dob);
+  newCustomer.member_since = currentDateTime();
+  const { error } = Joi.validate(newCustomer, addCustomersValidator);
+  if (error === null) {
+    try {
+      const results = await addCustomerQuery(Object.values(newCustomer));
+      if (results.affectedRows === 0) {
+        next(createError(404, 'INSERT UNSUCCESSFUL!'));
+      } else {
+        res.send(newCustomer);
       }
-    } else {
-      next(createError(400, 'Validation Error! Check Input parameters'));
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    next(createError(403, 'You are not Authorized to access'));
+  } else {
+    next(createError(400, 'Validation Error! Check Input parameters'));
   }
 }
 
@@ -76,58 +71,48 @@ async function singleCustomerInformation(req, res, next) {
 }
 
 async function updateCustomerInformation(req, res, next) {
-  try {
-    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    const updatedInfo = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      gender: req.body.gender,
-      dob: req.body.dob,
-      email: req.body.email,
-      member_since: req.body.member_since
-    };
-    const { error } = Joi.validate(updatedInfo, addCustomersValidator);
+  const updatedInfo = {
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    gender: req.body.gender,
+    dob: req.body.dob,
+    email: req.body.email,
+    member_since: req.body.member_since
+  };
+  const { error } = Joi.validate(updatedInfo, addCustomersValidator);
 
-    updatedInfo.dob = formatDate(updatedInfo.dob);
+  updatedInfo.dob = formatDate(updatedInfo.dob);
 
-    const queryValues = Object.values(updatedInfo);
-    queryValues[queryValues.length - 1] = req.params.id;
+  const queryValues = Object.values(updatedInfo);
+  queryValues[queryValues.length - 1] = req.params.id;
 
-    if (error === null && queryValues.length === 6) {
-      try {
-        const result = await updateCustomerQuery(queryValues);
-        if (result.affectedRows === 0) {
-          next(createError(404, 'Update Unsuccessful! Check the input'));
-        } else {
-          res.send(updatedInfo);
-        }
-      } catch (err) {
-        next(err);
+  if (error === null && queryValues.length === 6) {
+    try {
+      const result = await updateCustomerQuery(queryValues);
+      if (result.affectedRows === 0) {
+        next(createError(404, 'Update Unsuccessful! Check the input'));
+      } else {
+        res.send(updatedInfo);
       }
-    } else {
-      next(createError(400, 'Validation Error! Check Input parameters'));
+    } catch (err) {
+      next(err);
     }
-  } catch (err) {
-    next(createError(403, 'You are not Authorized to access'));
+  } else {
+    next(createError(400, 'Validation Error! Check Input parameters'));
   }
 }
 
 async function deleteCustomerInformation(req, res, next) {
   try {
-    jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    try {
-      const result = await deleteCustomerInfoQuery(req.params.id);
-      if (result.affectedRows === 0) {
-        res.status(404);
-        res.send('DELETE UNSUCCESSFUL!');
-      } else {
-        res.send('DELETE SUCCESSFUL!');
-      }
-    } catch (err) {
-      next(err);
+    const result = await deleteCustomerInfoQuery(req.params.id);
+    if (result.affectedRows === 0) {
+      res.status(404);
+      res.send('DELETE UNSUCCESSFUL!');
+    } else {
+      res.send('DELETE SUCCESSFUL!');
     }
   } catch (err) {
-    next(createError(403, 'You are not Authorized to access'));
+    next(err);
   }
 }
 
