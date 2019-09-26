@@ -37,18 +37,25 @@ app.use('/rides', ridesRouter);
 app.use('/register', register);
 
 // catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
 // error handler
-app.use(function(err, req, res) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
-  res.locals.message = err.message;
+  // res.locals.error = err;
+  // res.locals.message = err.message;
 
-  // render the error page
-  res.render('error', { err });
-  res.status(err.status || 500);
+  // res.status(err.status || 500);
+
+  // Create error object
+  const errorSend = {
+    status: err.status,
+    message: err.message
+  };
+  res.json(errorSend);
+  // res.render('error');
 });
 
 module.exports = app;

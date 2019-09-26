@@ -2,6 +2,7 @@
 // const customerModel = require('../models/customer');
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
+const createError = require('http-errors');
 const sqlConnection = require('../config/connection');
 
 const formatDate = require('../utils/formatDate');
@@ -9,18 +10,28 @@ const currentDateTime = require('../utils/currentDateTime');
 
 const addCustomersValidator = require('../validations/customers');
 
-function customersInformation(req, res, next) {
-  sqlConnection.query('SELECT * FROM customers', function(err, result) {
-    if (err) next(err);
+const customerQueries = require('../queries/customers');
+
+const { showCustomersQuery } = customerQueries;
+const { addCustomerQuery } = customerQueries;
+const { updateCustomerQuery } = customerQueries;
+const { singleCustomerInfoQuery } = customerQueries;
+const { deleteCustomerInfoQuery } = customerQueries;
+
+async function customersInformation(req, res, next) {
+  try {
+    const result = await showCustomersQuery();
     if (req.headers['content-type'] === 'application/json') {
       res.send(result);
     } else {
       res.render('customersForm', { result });
     }
-  });
+  } catch (err) {
+    next(err);
+  }
 }
 
-function addCustomers(req, res, next) {
+async function addCustomers(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
     const newCustomer = {
@@ -34,38 +45,35 @@ function addCustomers(req, res, next) {
     newCustomer.member_since = currentDateTime();
     const { error } = Joi.validate(newCustomer, addCustomersValidator);
     if (error === null) {
-      sqlConnection.query(
-        'INSERT INTO customers(first_name,last_name,gender,dob,email,member_since) VALUES (?,?,?,?,?,?)',
-        Object.values(newCustomer),
-        (err, results) => {
-          if (err) next(err);
-          if (results.affectedRows === 0) {
-            res.status(404);
-            res.send('INSERT UNSUCCESSFUL!');
-          } else {
-            res.send(newCustomer);
-          }
+      try {
+        const results = await addCustomerQuery(Object.values(newCustomer));
+        if (results.affectedRows === 0) {
+          next(createError(404, 'INSERT UNSUCCESSFUL!'));
+        } else {
+          res.send(newCustomer);
         }
-      );
+      } catch (err) {
+        next(err);
+      }
     } else {
-      res.status(400);
-      res.send('Validation Error! Check Input parameters');
+      next(createError(400, 'Validation Error! Check Input parameters'));
     }
   } catch (err) {
-    res.status(403).send('You are not Authorized to access');
+    next(createError(403, 'You are not Authorized to access'));
   }
 }
 
-function singleCustomerInformation(req, res, next) {
-  sqlConnection.query('SELECT * from customers where id= ?', req.params.id, (err, result) => {
-    if (err) next(err);
+async function singleCustomerInformation(req, res, next) {
+  try {
+    const result = await singleCustomerInfoQuery(req.params.id);
     if (result.length !== 0) {
       res.render('customers', { result });
     } else {
-      res.status(404);
-      res.send('ID Not Found');
+      next(createError(404, 'ID Not Found'));
     }
-  });
+  } catch (err) {
+    next(err);
+  }
 }
 
 function updateCustomerInformation(req, res, next) {
@@ -85,42 +93,40 @@ function updateCustomerInformation(req, res, next) {
     const queryValues = Object.values(updatedInfo);
     queryValues[queryValues.length - 1] = req.params.id;
     if (error === null && queryValues.length === 6) {
-      sqlConnection.query(
-        'UPDATE customers SET first_name = ? , last_name = ?, gender = ?, dob = ?, email = ? WHERE id = ? ',
-        queryValues,
-        (err, result) => {
-          if (err) next(err);
-          if (result.affectedRows === 0) {
-            res.status(404);
-            res.send('Update Unsuccessful! Check the input');
-          } else {
-            res.send(updatedInfo);
-          }
+      try {
+        const result = updateCustomerQuery(queryValues);
+        if (result.affectedRows === 0) {
+          next(createError(404, 'Update Unsuccessful! Check the input'));
+        } else {
+          res.send(updatedInfo);
         }
-      );
+      } catch (err) {
+        next(err);
+      }
     } else {
-      res.status(400);
-      res.send('Validation Error! Check Input parameters');
+      next(createError(400, 'Validation Error! Check Input parameters'));
     }
   } catch (err) {
-    res.status(403).send('You are not Authorized to access');
+    next(createError(403, 'You are not Authorized to access'));
   }
 }
 
 function deleteCustomerInformation(req, res, next) {
   try {
     jwt.verify(req.cookies.jwt, 'NotASecretAnymore');
-    sqlConnection.query('DELETE from customers where id= ?', req.params.id, (err, result) => {
-      if (err) next(err);
+    try {
+      const result = deleteCustomerInfoQuery(req.params.id);
       if (result.affectedRows === 0) {
         res.status(404);
         res.send('DELETE UNSUCCESSFUL!');
       } else {
         res.send('DELETE SUCCESSFUL!');
       }
-    });
+    } catch (err) {
+      next(err);
+    }
   } catch (err) {
-    res.status(403).send('You are not Authorized to access');
+    next(createError(403, 'You are not Authorized to access'));
   }
 }
 
